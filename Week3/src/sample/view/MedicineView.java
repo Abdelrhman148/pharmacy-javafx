@@ -1,163 +1,278 @@
 package sample.view;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+
 import sample.model.Medicine;
 
-import java.util.List;
+public class MedicineView {
 
-public class ReportsView {
+    private final BorderPane root;
 
-    private final VBox view;
-    private final TableView<Medicine> lowStockTable;
-    private final TableView<SaleRecord> salesTable;
-    private final ObservableList<SaleRecord> salesList;
-    private final Label totalSalesLabel;
-    private final Label lowStockCountLabel;
-    private final Button backToMedicinesButton;
+    private TextField searchField;
+    private TableView<Medicine> medicineTable;
 
-    public ReportsView(List<Medicine> medicines) {
-        view = new VBox(20);
-        view.setPadding(new Insets(30));
+    private Button addButton;
+    private Button editButton;
+    private Button salesButton;
+    private Button searchButton;
+    private Button homeButton;
+    private Button medicinesButton;
+    private Button reportsButton;
+    private Button settingsButton;
+    private Button logoutButton;
 
-        salesList = FXCollections.observableArrayList();
-        lowStockTable = new TableView<>();
-        salesTable = new TableView<>();
-        totalSalesLabel = new Label("Total Sales: 0.00");
-        lowStockCountLabel = new Label("Low / Out of Stock: 0");
-        backToMedicinesButton = new Button("← Back to Medicines");
-
-        buildUI();
-        refreshReports(medicines);
+    public MedicineView() {
+        root = new BorderPane();
+        createLayout();
     }
 
-    private void buildUI() {
-        Label title = new Label("Reports");
-        Label subtitle = new Label("Sales report and low/out-of-stock medicines");
+    private void createLayout() {
+        root.setTop(createHeader());
+        root.setLeft(createSidebar());
+        root.setCenter(createMainContent());
+    }
 
-        HBox topBar = new HBox(15);
-        topBar.getChildren().addAll(backToMedicinesButton, totalSalesLabel, lowStockCountLabel);
+    // ===================== HEADER =====================
 
-        // =========================
-        // Low Stock Medicines Table
-        // =========================
-        Label lowStockTitle = new Label("Low & Out of Stock Medicines (Stock <= 10)");
+    private HBox createHeader() {
+        Label logo = new Label("FCI PHARMA CARE");
+        Label subtitle = new Label("Pharmacy Management System");
 
-        TableColumn<Medicine, String> medNameCol = new TableColumn<>("Medicine");
-        medNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        VBox branding = new VBox(3);
+        branding.getChildren().addAll(logo, subtitle);
 
-        TableColumn<Medicine, Double> medPriceCol = new TableColumn<>("Price");
-        medPriceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
+        Label user = new Label("Mohammed  ● Online");
 
-        TableColumn<Medicine, Integer> medQtyCol = new TableColumn<>("Stock");
-        medQtyCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        HBox header = new HBox();
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(15, 25, 15, 25));
+        header.setSpacing(20);
+        header.getChildren().addAll(branding, user);
 
-        lowStockTable.getColumns().addAll(medNameCol, medPriceCol, medQtyCol);
-        lowStockTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        lowStockTable.setPrefHeight(200);
+        HBox.setHgrow(branding, Priority.ALWAYS);
 
-        // =========================
-        // Sales Report Table
-        // =========================
-        Label salesTitle = new Label("Sales Report");
+        return header;
+    }
 
-        TableColumn<SaleRecord, String> saleMedCol = new TableColumn<>("Medicine");
-        saleMedCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMedicineName()));
+    // ===================== SIDEBAR =====================
 
-        TableColumn<SaleRecord, Integer> saleQtyCol = new TableColumn<>("Sold Qty");
-        saleQtyCol.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getQuantity()).asObject());
+    private VBox createSidebar() {
+        VBox sidebar = new VBox(10);
+        sidebar.setPadding(new Insets(20));
+        sidebar.setPrefWidth(220);
 
-        TableColumn<SaleRecord, Double> saleTotalCol = new TableColumn<>("Total");
-        saleTotalCol.setCellValueFactory(data -> new SimpleDoubleProperty(data.getValue().getTotal()).asObject());
+        Label dashboardTitle = new Label("DASHBOARD");
 
-        salesTable.setItems(salesList);
-        salesTable.getColumns().addAll(saleMedCol, saleQtyCol, saleTotalCol);
-        salesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        salesTable.setPrefHeight(200);
+        homeButton = createMenuButton("🏠  Home");
+        medicinesButton = createMenuButton("💊  Medicines");
+        salesButton = createMenuButton("🛒  Sales");
+        reportsButton = createMenuButton("📊  Reports");
 
-        VBox.setVgrow(lowStockTable, Priority.ALWAYS);
-        VBox.setVgrow(salesTable, Priority.ALWAYS);
+        Label managementTitle = new Label("MANAGEMENT");
 
-        view.getChildren().addAll(
-                title,
-                subtitle,
-                topBar,
-                lowStockTitle,
-                lowStockTable,
-                salesTitle,
-                salesTable
+        addButton = createMenuButton("➕  Add Medicine");
+        editButton = createMenuButton("✏  Edit Medicine");
+        settingsButton = createMenuButton("⚙  Settings");
+
+        VBox spacer = new VBox();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        logoutButton = createMenuButton("🚪  Logout");
+
+        sidebar.getChildren().addAll(
+                dashboardTitle,
+                homeButton,
+                medicinesButton,
+                salesButton,
+                reportsButton,
+                managementTitle,
+                addButton,
+                editButton,
+                settingsButton,
+                spacer,
+                logoutButton
         );
+
+        return sidebar;
     }
 
-    public void refreshReports(List<Medicine> medicines) {
-        ObservableList<Medicine> lowStockItems = FXCollections.observableArrayList();
-        if (medicines != null) {
-            for (Medicine med : medicines) {
-                if (med.getQuantity() <= 10) {
-                    lowStockItems.add(med);
+    private Button createMenuButton(String text) {
+        Button button = new Button(text);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setPrefHeight(42);
+        button.setAlignment(Pos.CENTER_LEFT);
+        return button;
+    }
+
+    // ===================== MAIN CONTENT =====================
+
+    private VBox createMainContent() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(30));
+
+        Label title = new Label("Medicine Search");
+        Label description = new Label("Search and manage available medicines");
+
+        VBox titleSection = new VBox(5);
+        titleSection.getChildren().addAll(title, description);
+
+        HBox searchSection = createSearchSection();
+        HBox statistics = createStatistics();
+
+        Label tableTitle = new Label("Available Medicines");
+
+        TableView<Medicine> table = createMedicineTable();
+
+        content.getChildren().addAll(
+                titleSection,
+                searchSection,
+                statistics,
+                tableTitle,
+                table
+        );
+
+        VBox.setVgrow(table, Priority.ALWAYS);
+
+        return content;
+    }
+
+    private HBox createSearchSection() {
+        searchField = new TextField();
+        searchField.setPromptText("Search medicine name...");
+        searchField.setPrefHeight(45);
+
+        searchButton = new Button("Search");
+        searchButton.setPrefHeight(45);
+
+        HBox searchBox = new HBox(10);
+        searchBox.setAlignment(Pos.CENTER_LEFT);
+        searchBox.getChildren().addAll(searchField, searchButton);
+
+        HBox.setHgrow(searchField, Priority.ALWAYS);
+
+        return searchBox;
+    }
+
+    private HBox createStatistics() {
+        HBox cards = new HBox(15);
+
+        VBox totalCard = createCard("Total Medicines", "120");
+        VBox availableCard = createCard("Available", "108");
+        VBox outOfStockCard = createCard("Out of Stock", "12");
+
+        cards.getChildren().addAll(totalCard, availableCard, outOfStockCard);
+
+        return cards;
+    }
+
+    private VBox createCard(String title, String value) {
+        Label titleLabel = new Label(title);
+        Label valueLabel = new Label(value);
+
+        VBox card = new VBox(8);
+        card.setPadding(new Insets(15));
+        card.setPrefWidth(200);
+        card.getChildren().addAll(titleLabel, valueLabel);
+
+        return card;
+    }
+
+    // ===================== TABLE =====================
+
+    private TableView<Medicine> createMedicineTable() {
+        medicineTable = new TableView<>();
+
+        TableColumn<Medicine, String> nameColumn = new TableColumn<>("Medicine");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn<Medicine, Double> priceColumn = new TableColumn<>("Price");
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        TableColumn<Medicine, Integer> quantityColumn = new TableColumn<>("Stock");
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+        TableColumn<Medicine, String> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellFactory(column ->
+                new TableCell<Medicine, String>() {
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (empty) {
+                            setText(null);
+                        } else {
+                            Medicine medicine =
+                                    getTableView().getItems().get(getIndex());
+
+                            int quantity = medicine.getQuantity();
+
+                            if (quantity == 0) {
+                                setText("● Out of Stock");
+                            } else if (quantity <= 10) {
+                                setText("● Low Stock");
+                            } else {
+                                setText("● Available");
+                            }
+                        }
+                    }
                 }
-            }
-        }
-        lowStockTable.setItems(lowStockItems);
-        lowStockCountLabel.setText("Low / Out of Stock: " + lowStockItems.size());
+        );
 
-        double totalSales = 0.0;
-        for (SaleRecord sale : salesList) {
-            totalSales += sale.getTotal();
-        }
-        totalSalesLabel.setText(String.format("Total Sales: %.2f", totalSales));
+        medicineTable.getColumns().addAll(
+                nameColumn,
+                priceColumn,
+                quantityColumn,
+                statusColumn
+        );
+
+        nameColumn.setPrefWidth(250);
+        priceColumn.setPrefWidth(150);
+        quantityColumn.setPrefWidth(150);
+        statusColumn.setPrefWidth(180);
+
+        medicineTable.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY
+        );
+
+        return medicineTable;
     }
 
-    public void addSale(String medicineName, int quantity, double unitPrice) {
-        salesList.add(new SaleRecord(medicineName, quantity, quantity * unitPrice));
-        double totalSales = 0.0;
-        for (SaleRecord sale : salesList) {
-            totalSales += sale.getTotal();
-        }
-        totalSalesLabel.setText(String.format("Total Sales: %.2f", totalSales));
-    }
+    // ===================== GETTERS =====================
 
-    public VBox getView() {
-        return view;
-    }
+    public BorderPane getRoot() { return root; }
 
-    public Button getBackToMedicinesButton() {
-        return backToMedicinesButton;
-    }
+    public TextField getSearchField() { return searchField; }
 
-    public static class SaleRecord {
-        private final String medicineName;
-        private final int quantity;
-        private final double total;
+    public TableView<Medicine> getMedicineTable() { return medicineTable; }
 
-        public SaleRecord(String medicineName, int quantity, double total) {
-            this.medicineName = medicineName;
-            this.quantity = quantity;
-            this.total = total;
-        }
+    public Button getEditButton() { return editButton; }
 
-        public String getMedicineName() {
-            return medicineName;
-        }
+    public Button getAddButton() { return addButton; }
 
-        public int getQuantity() {
-            return quantity;
-        }
+    public Button getSalesButton() { return salesButton; }
 
-        public double getTotal() {
-            return total;
-        }
-    }
+    public Button getSearchButton() { return searchButton; }
+
+    public Button getHomeButton() { return homeButton; }
+
+    public Button getMedicinesButton() { return medicinesButton; }
+
+    public Button getReportsButton() { return reportsButton; }
+
+    public Button getSettingsButton() { return settingsButton; }
+
+    public Button getLogoutButton() { return logoutButton; }
 }
