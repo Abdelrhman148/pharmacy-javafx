@@ -37,18 +37,15 @@ public class Controller {
             return;
         }
 
-        // البحث عند الضغط على زر Search
         if (medicineView.getSearchButton() != null) {
             medicineView.getSearchButton().setOnAction(e -> applySearchFilter());
         }
 
-        // البحث الفوري أثناء الكتابة في حقل البحث
         if (medicineView.getSearchField() != null) {
             medicineView.getSearchField().textProperty().addListener((obs, oldVal, newVal) -> applySearchFilter());
             medicineView.getSearchField().setOnAction(e -> applySearchFilter());
         }
 
-        // أزرار الـ Sidebar المطلوب تفعيلها
         if (medicineView.getHomeButton() != null) {
             medicineView.getHomeButton().setOnAction(e -> {
                 resetSearch();
