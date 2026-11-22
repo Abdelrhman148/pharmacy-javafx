@@ -50,6 +50,8 @@ public class MedicineController {
         setupSalesButton();
 
         setupHomeButton();
+
+        setupMedicinesButton();
     }
 
     // =========================================================
@@ -570,6 +572,25 @@ public class MedicineController {
 
                     view.getMedicineTable()
                             .setItems(allMedicines);
+
+                    view.getMedicineTable()
+                            .refresh();
+                });
+    }
+    private void setupMedicinesButton() {
+
+        view.getMedicinesButton()
+                .setOnAction(event -> {
+
+                    allMedicines.setAll(service.loadMedicines());
+
+                    filterMedicines(
+                            view.getSearchField().getText()
+                    );
+
+                    view.getMedicineTable()
+                            .getSelectionModel()
+                            .clearSelection();
 
                     view.getMedicineTable()
                             .refresh();
