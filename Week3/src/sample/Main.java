@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import sample.controller.MedicineController;
+import sample.controller.LogoutController;
 
 public class Main extends Application {
 
@@ -12,6 +13,7 @@ public class Main extends Application {
 
         MedicineController controller =
                 new MedicineController();
+        new LogoutController(controller.getView());
 
         Scene scene = new Scene(
                 controller.getView().getRoot(),
