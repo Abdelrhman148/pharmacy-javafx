@@ -48,6 +48,10 @@ public class MedicineController {
         setupEditButton();
 
         setupSalesButton();
+
+        setupHomeButton();
+
+        setupMedicinesButton();
     }
 
     // =========================================================
@@ -553,6 +557,43 @@ public class MedicineController {
                     allMedicines.setAll(service.loadMedicines());
 
                     view.getMedicineTable().refresh();
+                });
+    }
+    // =========================================================
+    // HOME BUTTON
+    // =========================================================
+
+    private void setupHomeButton() {
+
+        view.getHomeButton()
+                .setOnAction(event -> {
+
+                    view.getSearchField().clear();
+
+                    view.getMedicineTable()
+                            .setItems(allMedicines);
+
+                    view.getMedicineTable()
+                            .refresh();
+                });
+    }
+    private void setupMedicinesButton() {
+
+        view.getMedicinesButton()
+                .setOnAction(event -> {
+
+                    allMedicines.setAll(service.loadMedicines());
+
+                    filterMedicines(
+                            view.getSearchField().getText()
+                    );
+
+                    view.getMedicineTable()
+                            .getSelectionModel()
+                            .clearSelection();
+
+                    view.getMedicineTable()
+                            .refresh();
                 });
     }
     // =========================================================
